@@ -8,7 +8,17 @@ I remember when I could spend somewhere around $20 and get a pi zero w then spen
 
 Fast forward to the age where even I can setup home lab software (self depricating but don't worry I have an ego too to keep in check).  I setup Home Assistant on my Rpi 5 and I like it... but now I want my Pi 5 back and really won't buy a replacement with these crazy prices.  So I have the Home Assistant project running on my RPi 3B+ (barely but it works).  Lights and power outlets can be turned on and off using matter, thread, and the ZBT-1 hardware for a thread border router. I even jumpered a capacitor to 5V and Gnd pins so to get rid of the constant under voltage or brownout problem.  Thanks Taulab project for making me learn about brownouts and under engineered power paths!<br>
 
-Now I want to setup or Magic Mirror display (at first I thought of Dakboard, but why not self host MM2 instead).  I have two Pi Zero Ws left and I thought this HW should be sufficient.  Little did I know software bloat crept in, mainly with the browser, while I wasn't looking.  I tried using the latest 2025 Raspbian Trixie with chromium and then Firefox-esr and both failed to run due to a missing instruction set that doesn't exist on the Arm6 in the RPi Zero W.
+Now I want to setup a Magic Mirror display (at first I thought of Dakboard, but why not self host MM2 instead).  I have two Pi Zero Ws left and I thought this HW should be sufficient.  Little did I know software bloat crept in, mainly with the browser, while I wasn't looking.  I tried using the latest 2025 Raspbian Trixie with chromium and then Firefox-esr and both failed to run due to a missing instruction set that doesn't exist on the Arm6 in the RPi Zero W.
 
 ## Problem Statement
-New Raspberry Pis are heavily affected by the memory cost increase affecting all computers currently in 2026 and they are no longer a good value.  I'll be using older raspberry pi zero W hardware that was sitting in a box to build a simple Magic Mirror 2 display or possibly a Dakboard display.  The issue with using older hardware is modern web browser version will not run ... to be continued...
+New Raspberry Pis are heavily affected by the memory cost increase affecting all computers currently in 2026 and they are no longer a good value.  I'll be using older raspberry pi zero W hardware to build a simple Magic Mirror 2 display or possibly a Dakboard display.  The issue with using older hardware is modern web browser version will not run.
+
+## Progress
+I setup the display in two different ways.  One would load and display but then crash after hours of operation.  I'm trying a different method now.  The software stack is <br>
+- 32-bit DietPi
+- DRM/KMS
+- Graphic packages with Wayland support
+- Cage
+- Cog
+- WPE Webkit 
+...to be continued ...
