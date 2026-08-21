@@ -141,8 +141,9 @@ Set the display brightness in half and watch the power usage drop.  For me it we
 
 
 ## Issues, Enhancements, and Things to Work On
-- Display is at 100% brightness using over 4W of power.
 - The system memory usage is pushed to the max.  I think the automatically run apt update is crashing the web browser.  Need to try an apt update routine that first unloads the wpe webit to free memory, displays something to the user to say maintenance, and runs apt.
+  - apt qq list command (or something like it ran) with a subprocess of wc -l
+  - cpu and men usage was at 100% 
 - When I reviewed dmesg after a crash it showed one OOM error.  I need to capture log info better
 - 
 
