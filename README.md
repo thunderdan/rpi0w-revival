@@ -13,7 +13,7 @@ Now I want to setup a Magic Mirror display (at first I thought of Dakboard, but 
 ## Problem Statement
 New Raspberry Pis are heavily affected by the memory cost increase affecting all computers currently in 2026 and they are no longer a good value.  I'll be using older raspberry pi zero W hardware to build a simple Magic Mirror 2 display or possibly a Dakboard display.  The issue with using older hardware is modern web browser version will not run.
 
-## Progress
+## Initial Configuration 260820
 I have found promising configuration:
 - 32-bit DietPi
 - DRM/KMS
@@ -25,29 +25,42 @@ I have found promising configuration:
 The following were my setup and configuration steps:
 - Using RPi Imager I flashed the current DietPi 32-bit RPi image released 2026-08-15 to an SD card.  Device > RPi Zero > OS > Other general-purpose OS > DietPi > DietPi OS (32-bit).
 - Edit the dietpi.txt file on the SD card
-  - \# Select setup choices based on your location
-  - AUTO_SETUP_KEYBOARD_LAYOUT=us
-  - AUTO_SETUP_TIMEZONE=America/Los_Angeles
-  - \# Disable ethernet and enable wifi to match RPi Zero HW
-  - AUTO_SETUP_NET_ETHERNET_ENABLED=0
-  - AUTO_SETUP_NET_WIFI_ENABLED=1
-  - AUTO_SETUP_NET_WIFI_COUNTRY_CODE=US
-  - AUTO_SETUP_NET_HOSTNAME=myHostname
-  - \# Disable serial console (unless you want to debug with RS-232)
-  - CONFIG_SERIAL_CONSOLE_ENABLE=0
-  - \# Enable Logind since it provides some setup steps we require
-  - AUTO_UNMASK_LOGIND=1
-  - \# Use DietPi to install needed packages automatically
-  - AUTO_SETUP_APT_INSTALLS=cage cog fonts-dejavu-core fontconfig ca-certificates
-  - \# Use Dropbear ssh to keep things diet
-  - AUTO_SETUP_SSH_SERVER_INDEX=-1
-  - \# This must be set to actually run the automated install
-  - AUTO_SETUP_AUTOMATED=1
-  - \# Slightly more secure
-  - SOFTWARE_DISABLE_SSH_PASSWORD_LOGINS=root
+```
+# Select setup choices based on your location
+AUTO_SETUP_KEYBOARD_LAYOUT=us
+AUTO_SETUP_TIMEZONE=America/Los_Angeles
+
+# Disable ethernet and enable wifi to match RPi Zero HW
+AUTO_SETUP_NET_ETHERNET_ENABLED=0
+AUTO_SETUP_NET_WIFI_ENABLED=1
+AUTO_SETUP_NET_WIFI_COUNTRY_CODE=US
+
+AUTO_SETUP_NET_HOSTNAME=myHostname
+
+# Disable serial console (unless you want to debug with RS-232)
+CONFIG_SERIAL_CONSOLE_ENABLE=0
+
+# Enable Logind since it provides some setup steps we require
+AUTO_UNMASK_LOGIND=1
+
+# Use DietPi to install needed packages automatically
+UTO_SETUP_APT_INSTALLS=cage cog fonts-dejavu-core fontconfig ca-certificates
+
+# Use Dropbear ssh to keep things diet
+AUTO_SETUP_SSH_SERVER_INDEX=-1
+
+# This must be set to actually run the automated install
+AUTO_SETUP_AUTOMATED=1
+
+# Improve security
+SOFTWARE_DISABLE_SSH_PASSWORD_LOGINS=root
+```
+
 - Edit dietpi-wifi.txt and set your wifi ssid and password
-  - aWIFI_SSID[0]='ssid-goes-here'
-  - aWIFI_KEY[0]='wifi-password-goes-here'
+```
+aWIFI_SSID[0]='ssid-goes-here'
+aWIFI_KEY[0]='wifi-password-goes-here'
+```
 - When the system is up, run sudo dietpi-launcher and make the following additional changes
   - Dietpi-display > adjust any screen resolution or rotation here
   - Dietpi-config > Display Options > KMS/DRM [On]
@@ -93,8 +106,43 @@ WantedBy=graphical.target
 ```
 
 - Run the following commands to 1) add the necessary groups 2) enable the seatd service, 3) load our new kiosk service, 4) enable the kiosk service
-  - sudo usermod -aG video,render,input dietpi
-  - sudo systemctl enable --now seatd.service
-  - sudo systemctl daemon-reload
-  - sudo systemctl enable --now kiosk.service
+```
+sudo usermod -aG video,render,input dietpi
+sudo systemctl enable --now seatd.service
+sudo systemctl daemon-reload
+sudo systemctl enable --now kiosk.service
+```
+
+## Additional Configuration 260821
+```
+sudo apt install kms++-utils
+kmsprint 
+kmsprint -m
+```
+
+Edit /etc/modules-load.d/modules.conf and add one line i2c-dev
+```
+sudo nano /etc/modules-load.d/modules.conf
+i2c-dev
+```
+verify with lsmod | grep i2c[-_]dev
+
+Now its possible to run ddc utilities
+```
+sudo ddcutil detect
+sudo ddcutil probe
+```
+
+Usefull commands are to run cat on the files in /sys/class/drm/card1-HDMI-A-1/
+```cat /sys/class/drm/card1-HDMI-A-1/modes```
+
+Set the display brightness in half and watch the power usage drop.  For me it went from 4.5W -> 3.2W
+```sudo ddcutil setvcp 10 50```
+
+
+## Issues, Enhancements, and Things to Work On
+- Display is at 100% brightness using over 4W of power.
+- The system memory usage is pushed to the max.  I think the automatically run apt update is crashing the web browser.  Need to try an apt update routine that first unloads the wpe webit to free memory, displays something to the user to say maintenance, and runs apt.
+- When I reviewed dmesg after a crash it showed one OOM error.  I need to capture log info better
+- 
 
