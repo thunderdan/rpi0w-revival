@@ -14,11 +14,87 @@ Now I want to setup a Magic Mirror display (at first I thought of Dakboard, but 
 New Raspberry Pis are heavily affected by the memory cost increase affecting all computers currently in 2026 and they are no longer a good value.  I'll be using older raspberry pi zero W hardware to build a simple Magic Mirror 2 display or possibly a Dakboard display.  The issue with using older hardware is modern web browser version will not run.
 
 ## Progress
-I setup the display in two different ways.  One would load and display but then crash after hours of operation.  I'm trying a different method now.  The software stack is <br>
+I have found promising configuration:
 - 32-bit DietPi
 - DRM/KMS
-- Graphic packages with Wayland support
+- Wayland Graphics packages
 - Cage
 - Cog
-- WPE Webkit 
-...to be continued ...
+- WPE Webkit
+
+The following were my setup and configuration steps:
+- Using RPi Imager I flashed the current DietPi 32-bit RPi image released 2026-08-15 to an SD card.  Device > RPi Zero > OS > Other general-purpose OS > DietPi > DietPi OS (32-bit).
+- Edit the dietpi.txt file on the SD card
+  - \# Select setup choices based on your location
+  - AUTO_SETUP_KEYBOARD_LAYOUT=us
+  - AUTO_SETUP_TIMEZONE=America/Los_Angeles
+  - \# Disable ethernet and enable wifi to match RPi Zero HW
+  - AUTO_SETUP_NET_ETHERNET_ENABLED=0
+  - AUTO_SETUP_NET_WIFI_ENABLED=1
+  - AUTO_SETUP_NET_WIFI_COUNTRY_CODE=US
+  - AUTO_SETUP_NET_HOSTNAME=myHostname
+  - \# Disable serial console (unless you want to debug with RS-232)
+  - CONFIG_SERIAL_CONSOLE_ENABLE=0
+  - \# Enable Logind since it provides some setup steps we require
+  - AUTO_UNMASK_LOGIND=1
+  - \# Use DietPi to install needed packages automatically
+  - AUTO_SETUP_APT_INSTALLS=cage cog fonts-dejavu-core fontconfig ca-certificates
+  - \# Use Dropbear ssh to keep things diet
+  - AUTO_SETUP_SSH_SERVER_INDEX=-1
+  - \# This must be set to actually run the automated install
+  - AUTO_SETUP_AUTOMATED=1
+  - \# Slightly more secure
+  - SOFTWARE_DISABLE_SSH_PASSWORD_LOGINS=root
+- Edit dietpi-wifi.txt and set your wifi ssid and password
+  - aWIFI_SSID[0]='ssid-goes-here'
+  - aWIFI_KEY[0]='wifi-password-goes-here'
+- When the system is up, run sudo dietpi-launcher and make the following additional changes
+  - Dietpi-display > adjust any screen resolution or rotation here
+  - Dietpi-config > Display Options > KMS/DRM [On]
+  - Dietpi-config > Display Options > GPU/RAM memory split > 64 Full GUI/Desktop/Default
+  - Dietpi-config > Display Options > Rpi Codecs [On]
+  - Dietpi-config > Display Options > adjust any display brightness here
+  - Dietpi-config > Security Options > change any passwords as needed for security
+- Create the necessary systemd unit file to create a kiosk service
+  - sudo nano /etc/systemd/system/kiosk.service
+```ini
+[Unit]
+Description=WebKit kiosk display
+Requires=seatd.service
+After=seatd.service systemd-user-sessions.service
+Conflicts=getty@tty1.service
+Before=getty@tty1.service
+
+[Service]
+Type=simple
+User=dietpi
+Group=dietpi
+SupplementaryGroups=video render input
+RuntimeDirectory=cage
+RuntimeDirectoryMode=0700
+Environment=XDG_RUNTIME_DIR=/run/cage
+Environment=LIBSEAT_BACKEND=seatd
+Environment=SEATD_SOCK=/run/seatd.sock
+TTYPath=/dev/tty1
+StandardInput=tty
+StandardOutput=journal
+StandardError=journal
+TTYReset=yes
+TTYVHangup=yes
+TTYVTDisallocate=yes
+
+ExecStart=/usr/bin/cage -- /usr/bin/cog https://wpewebkit.org/
+
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=graphical.target
+```
+
+- Run the following commands to 1) add the necessary groups 2) enable the seatd service, 3) load our new kiosk service, 4) enable the kiosk service
+  - sudo usermod -aG video,render,input dietpi
+  - sudo systemctl enable --now seatd.service
+  - sudo systemctl daemon-reload
+  - sudo systemctl enable --now kiosk.service
+
