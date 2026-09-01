@@ -44,10 +44,15 @@ CONFIG_SERIAL_CONSOLE_ENABLE=0
 AUTO_UNMASK_LOGIND=1
 
 # Use DietPi to install needed packages automatically
-UTO_SETUP_APT_INSTALLS=cage cog fonts-dejavu-core fontconfig ca-certificates
+AUTO_SETUP_APT_INSTALLS=cage cog fonts-dejavu-core fontconfig ca-certificates
 
 # Use Dropbear ssh to keep things diet
 AUTO_SETUP_SSH_SERVER_INDEX=-1
+
+# Disable auto apt checks since they nearly max out system memory
+# apt can be run by disabling the display service (kiosk.service) then run apt updat && apt upgrade
+CONFIG_CHECK_APT_UPDATES=0
+
 
 # This must be set to actually run the automated install
 AUTO_SETUP_AUTOMATED=1
