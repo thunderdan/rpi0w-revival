@@ -135,6 +135,7 @@ verify with lsmod | grep i2c[-_]dev
 
 Now its possible to run ddc utilities
 ```
+sudo apt install ddcutil
 sudo ddcutil detect
 sudo ddcutil probe
 ```
