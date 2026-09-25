@@ -144,6 +144,17 @@ Usefull commands are to run cat on the files in /sys/class/drm/card1-HDMI-A-1/
 Set the display brightness in half and watch the power usage drop.  For me it went from 4.5W -> 3.2W
 ```sudo ddcutil setvcp 10 50```
 
+## Changing the launch of the kiosk to a dedicated system user
+```
+sudo useradd  --system --create-home --home-dir /var/lib/kiosk --shell /bin/bash kiosk
+sudo passwd --lock kiosk
+sudo nano /etc/pam.d/cage
+auth       required     pam_unix.so nullok
+account    required     pam_unix.so
+session    required     pam_unix.so
+session    required     pam_systemd.so
+```
+Edit the kiosk.service file to change the user and a reboot should do it.
 
 ## Issues, Enhancements, and Things to Work On
 - The system memory usage is pushed to the max.  I think the automatically run apt update is crashing the web browser.  Need to try an apt update routine that first unloads the wpe webit to free memory, displays something to the user to say maintenance, and runs apt.
