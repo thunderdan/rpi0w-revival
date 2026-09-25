@@ -129,6 +129,7 @@ Edit /etc/modules-load.d/modules.conf and add one line i2c-dev
 ```
 sudo nano /etc/modules-load.d/modules.conf
 i2c-dev
+sudo modprobe i2c-dev
 ```
 verify with lsmod | grep i2c[-_]dev
 
