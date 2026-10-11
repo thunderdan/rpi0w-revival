@@ -18,9 +18,9 @@ I have found promising configuration:
 - 32-bit DietPi
 - DRM/KMS
 - Wayland Graphics packages
-- Cage
-- Cog
-- WPE Webkit
+- Cage - minimal wayland compositor
+- Cog - small window launch for WPE
+- WPE Webkit - minimal web browser for embedded systems
 
 The following were my setup and configuration steps:
 - Using RPi Imager I flashed the current DietPi 32-bit RPi image released 2026-08-15 to an SD card.  Device > RPi Zero > OS > Other general-purpose OS > DietPi > DietPi OS (32-bit).
