@@ -1,4 +1,4 @@
-# rpi0w-revival
+# Raspberry Pi Zero Wireless Revival or rpi0w-revival
 This might not be the best place for instructions on how to setup a raspberry pi zero W to operate as kiosk displaying a webpage in 2026 but what else am I going to do?  Start paying someone to host a webpage for me?
 
 ## Rant
@@ -165,3 +165,87 @@ Edit the kiosk.service file to change the user and a reboot should do it.
 - When I reviewed dmesg after a crash it showed one OOM error.  I need to capture log info better
 - 
 
+## Extra VCP Info for Screen Brightness
+
+$ sudo ddcutil getvcp D6
+VCP code 0xd6 (Power mode                    ): DPM: On,  DPMS: Off (sl=0x01)
+$ sudo ddcutil setvcp D6 5
+$ sudo ddcutil getvcp D6
+VCP code 0xd6 (Power mode                    ): DPM: Off, DPMS: Off (sl=0x04)
+$ sudo ddcutil setvcp D6 1
+$ sudo ddcutil getvcp D6
+VCP code 0xd6 (Power mode                    ): DPM: On,  DPMS: Off (sl=0x01)
+
+
+VCP code 13: Backlight control
+   Increase/decrease the specified backlight control value
+   MCCS versions: 2.1, 3.0
+   ddcutil feature subsets: PROFILE, COLOR
+   Attributes (v2.1): Read Write, Continuous (complex)
+   Attributes (v3.0): Read Write, Continuous (complex)
+   Attributes (v2.2): Deprecated, 
+
+VCP code 44: Rotation
+   Increasing (decreasing) this value rotates the image (counter) clockwise around the center point of the screen.
+   MCCS versions: 2.0, 2.1, 3.0, 2.2
+   ddcutil feature subsets: CRT
+   Attributes: Read Write, Continuous (normal)
+
+VCP code 66: Ambient light sensor
+   Enable/Disable ambient light sensor
+   MCCS versions: 2.1, 3.0, 2.2
+   ddcutil feature subsets: 
+   Attributes: Read Write, Non-Continuous (simple)
+
+VCP code 6B: Backlight Level: White
+   Increase/decrease the white backlight level
+   MCCS versions: 2.2
+   ddcutil feature subsets: PROFILE, COLOR
+   Attributes: Read Write, Continuous (normal)
+
+VCP code 84: Vertical Mirror (Flip)
+   Flip picture vertically
+   MCCS versions: 2.0, 2.1, 3.0, 2.2
+   ddcutil feature subsets: 
+   Attributes (v2.0): Write Only, Non-Continuous (write-only)
+   Attributes (v2.1): Read Write, Non-Continuous (simple)
+   Attributes (v3.0): Read Write, Non-Continuous (simple)
+   Attributes (v2.2): Read Write, Non-Continuous (simple)
+
+VCP code 8D: Audio mute/Screen blank
+   Mute/unmute audio, and (v2.2) screen blank
+   MCCS versions: 2.0, 2.1, 3.0, 2.2
+   ddcutil feature subsets: TV, AUDIO
+   Attributes (v2.0): Read Write, Non-Continuous (simple)
+   Attributes (v2.1): Read Write, Non-Continuous (simple)
+   Attributes (v3.0): Read Write, Non-Continuous (simple)
+   Attributes (v2.2): Read Write, Non-Continuous (complex)
+
+VCP code D6: Power mode
+   DPM and DPMS status
+   MCCS versions: 2.0, 2.1, 3.0, 2.2
+   ddcutil feature subsets: 
+   Attributes: Read Write, Non-Continuous (simple)
+
+VCP code D7: Auxiliary power output
+   Controls an auxiliary power output from a display to a host device
+   MCCS versions: 2.0, 2.1, 3.0, 2.2
+   ddcutil feature subsets: 
+   Attributes: Read Write, Non-Continuous (simple)
+
+VCP code DC: Display Mode
+   Type of application used on display
+   MCCS versions: 2.0, 2.1, 3.0, 2.2
+   ddcutil feature subsets: COLOR
+   Attributes: Read Write, Non-Continuous (simple)
+
+
+$ sudo ddcutil setvcp 0x10 0x64
+$ sudo ddcutil getvcp 0x10
+VCP code 0x10 (Brightness                    ): current value =   100, max value =   100
+$ sudo ddcutil setvcp 0x10 0x32
+$ sudo ddcutil setvcp 0x10 0x0
+$ sudo ddcutil setvcp 0x10 0x55
+$ sudo ddcutil setvcp 0x10 0x50
+$ echo "0x0 is bright and 0x64 is dim... go figure"
+0x0 is bright and 0x64 is dim... go figure
